@@ -7,8 +7,19 @@
     <title>Vite + Lit + TS</title>
     <link rel="stylesheet" href="./src/index.css" />
     <script type="module" src="/src/graphit-element.ts"></script>
+    <style>
+      #container {
+        margin: auto;
+        width: 50%;
+        height: 100px;
+        border: 1px solid black;
+        padding: 10px;
+      }
+    </style>
   </head>
   <body>
-    <graphit-element></graphit-element>
+    <div id="container">
+      <graphit-element></graphit-element>
+    </div>
   </body>
 </html>

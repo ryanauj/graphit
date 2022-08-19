@@ -46,13 +46,9 @@ export class GraphitElement extends LitElement {
 
   render() {
     return html`
-      <main class="container">
-        <h1>Graph Builder</h1>
+      <div id="graph" ${ref(this.graphRef)}></div>
 
-        <div id="graph" ${ref(this.graphRef)}></div>
-      </main>
-
-      <footer>
+      <footer hidden>
         <p>Built with <a href="https://js.cytoscape.org/">Cytoscape.js</a></p>
       </footer>
     `
@@ -136,46 +132,16 @@ export class GraphitElement extends LitElement {
       text-align: center;
     }
 
-    code {
-      display: block;
-      padding: 10px 5px;
-      margin-bottom: 5px;
-      background-color: #eee;
-    }
-
-    legend {
-      padding: 0 3px;
-    }
-
-    .slim-bottom {
-      padding-bottom: 0px;
-      margin-bottom: 0px;
-      margin-top: 0px;
-    }
-
-    .extra-space {
-      padding: 10px 0;
-    }
-
-    .section {
-      padding: 10px 0;
-    }
-
-    .subsection {
-      padding: 2px 0;
-    }
-
     .container {
-      width: 80%;
+      width: 100%;
+      height: 100%;
       margin: auto;
     }
 
     #graph {
       width: 100%;
-      height: 80vh;
-      display: block;
+      height: 100%;
       cursor: pointer;
-      border: 1px solid black;
     }
   `
 }
