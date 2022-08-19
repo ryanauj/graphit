@@ -1,6 +1,16 @@
-import { LitElement, css, html } from 'lit'
+import { LitElement, css, html, PropertyValueMap } from 'lit'
+import { createRef, Ref, ref } from 'lit/directives/ref.js'
 import { customElement, property } from 'lit/decorators.js'
 import litLogo from './assets/lit.svg'
+
+import cytoscape from 'cytoscape'
+// For some reason dagre is causing an error when compiled:
+// Cannot read properties of undefined (reading 'Graph')
+// Omitting for now.
+import dagre from 'cytoscape-dagre'
+import cola from 'cytoscape-cola'
+import klay from 'cytoscape-klay'
+import { v4 as uuidv4 } from 'uuid'
 
 /**
  * An example element.
@@ -10,6 +20,12 @@ import litLogo from './assets/lit.svg'
  */
 @customElement('graphit-element')
 export class GraphitElement extends LitElement {
+  @property()
+  defaultNodeColor = '#666'
+
+  @property()
+  selectedNodeColor = 'blue'
+
   /**
    * Copy for the read the docs hint.
    */
@@ -22,104 +38,223 @@ export class GraphitElement extends LitElement {
   @property({ type: Number })
   count = 0
 
+  @property()
+  cy: cytoscape.Core
+
+  @property()
+  graphRef: Ref<HTMLDivElement> = createRef()
+
   render() {
     return html`
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" class="logo" alt="Vite logo" />
-        </a>
-        <a href="https://lit.dev" target="_blank">
-          <img src=${litLogo} class="logo lit" alt="Lit logo" />
-        </a>
-      </div>
-      <slot></slot>
-      <div class="card">
-        <button @click=${this._onClick} part="button">
-          count is ${this.count}
-        </button>
-      </div>
-      <p class="read-the-docs">${this.docsHint}</p>
+      <main class="container">
+        <h1>Graph Builder</h1>
+
+        <div id="graph" ${ref(this.graphRef)}></div>
+
+        <div>
+          <h5>Selected Node</h5>
+          <input type="text" disabled={selectedNode === null}
+          on:input={onSelectedNameChange} value={selectedNode?.data()?.name ??
+          ''}>
+        </div>
+
+        <div class="section">
+          <fieldset>
+            <legend>
+              <h4>Layout Options</h4>
+            </legend>
+
+            <div class="subsection">
+              <label>Types</label>
+              <select bind:value="{selectedLayoutType}">
+                {#each layoutTypes as layoutType}
+                <option value="{layoutType}">{layoutType}</option>
+                {/each}
+              </select>
+            </div>
+
+            <div class="subsection">
+              <label>
+                <input type="checkbox" bind:checked="{fitToViewport}" />
+                Fit To Viewport
+              </label>
+            </div>
+
+            <div class="extra-space">
+              <button on:click="{updateLayout}">Organize Layout</button>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="section">
+          <fieldset>
+            <legend>
+              <h4 class="slim-bottom">Edit JSON</h4>
+            </legend>
+            <textarea
+              bind:value="{jsonElementsText}"
+              minRows="{4}"
+              maxRows="{40}"
+            />
+            <button on:click="{setElements}">Update Elements</button>
+          </fieldset>
+        </div>
+
+        <div class="section">
+          <fieldset>
+            <legend>
+              <h4 class="slim-bottom">Legend</h4>
+            </legend>
+            <p>
+              Blue means a node is selected, and grey means a node is not
+              selected.
+            </p>
+            <p>Tap an empty space to create a node.</p>
+            <p>Tap a selected node to deselect it.</p>
+            <p>
+              If a node is selected, tap another node to create an edge from the
+              selected node to that, or tap an empty space to create a node at
+              that position and select that.
+            </p>
+            <p>Double tap a node or edge to delete it.</p>
+            <p>
+              Tap with two fingers, tap and hold, or right click to create a
+              node and keep it selected.
+            </p>
+          </fieldset>
+        </div>
+      </main>
+
+      <footer>
+        <p>Built with <a href="https://js.cytoscape.org/">Cytoscape.js</a></p>
+      </footer>
     `
   }
 
-  private _onClick() {
-    this.count++
+  constructor() {
+    super()
+  }
+
+  connectedCallback(): void {
+    super.connectedCallback()
+    cytoscape.use(dagre)
+    cytoscape.use(cola)
+    cytoscape.use(klay)
+  }
+
+  protected firstUpdated(
+    _changedProperties: PropertyValueMap<any> | Map<PropertyKey, unknown>
+  ): void {
+    console.log(this.graphRef.value!)
+
+    this.cy = cytoscape({
+      container: this.graphRef.value!,
+      elements: [
+        {
+          data: { id: 'a', name: '1' }
+        },
+        {
+          data: { id: 'b', name: '2' }
+        },
+        {
+          data: { id: 'ab', source: 'a', target: 'b' }
+        }
+      ],
+      style: [
+        {
+          selector: 'node',
+          style: {
+            'background-color': this.defaultNodeColor,
+            label: (ele: any) => {
+              // Use the name property if it is set
+              return ele?.data()?.name
+            }
+          }
+        },
+        {
+          selector: 'edge',
+          style: {
+            width: 3,
+            'line-color': '#ccc',
+            'target-arrow-color': '#ccc',
+            'target-arrow-shape': 'triangle',
+            'curve-style': 'bezier'
+          }
+        }
+      ]
+    })
+    this.updateLayout()
+  }
+
+  updateLayout = () => {
+    console.log('Layout Run')
+    const layout = this.cy.layout({
+      name: 'grid',
+      fit: true
+    })
+    layout.run()
+    console.log(layout)
+    this.graphRef = this.graphRef
   }
 
   static styles = css`
     :host {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 2rem;
+      width: 100%;
+    }
+
+    footer {
+      left: 0;
+      bottom: 0;
+      width: 100%;
       text-align: center;
     }
 
-    .logo {
-      height: 6em;
-      padding: 1.5em;
-      will-change: filter;
-    }
-    .logo:hover {
-      filter: drop-shadow(0 0 2em #646cffaa);
-    }
-    .logo.lit:hover {
-      filter: drop-shadow(0 0 2em #325cffaa);
+    code {
+      display: block;
+      padding: 10px 5px;
+      margin-bottom: 5px;
+      background-color: #eee;
     }
 
-    .card {
-      padding: 2em;
+    legend {
+      padding: 0 3px;
     }
 
-    .read-the-docs {
-      color: #888;
+    .slim-bottom {
+      padding-bottom: 0px;
+      margin-bottom: 0px;
+      margin-top: 0px;
     }
 
-    h1 {
-      font-size: 3.2em;
-      line-height: 1.1;
+    .extra-space {
+      padding: 10px 0;
     }
 
-    a {
-      font-weight: 500;
-      color: #646cff;
-      text-decoration: inherit;
-    }
-    a:hover {
-      color: #535bf2;
+    .section {
+      padding: 10px 0;
     }
 
-    button {
-      border-radius: 8px;
-      border: 1px solid transparent;
-      padding: 0.6em 1.2em;
-      font-size: 1em;
-      font-weight: 500;
-      font-family: inherit;
-      background-color: #1a1a1a;
+    .subsection {
+      padding: 2px 0;
+    }
+
+    .container {
+      width: 80%;
+      margin: auto;
+    }
+
+    #graph {
+      width: 100%;
+      height: 80vh;
+      display: block;
       cursor: pointer;
-      transition: border-color 0.25s;
-    }
-    button:hover {
-      border-color: #646cff;
-    }
-    button:focus,
-    button:focus-visible {
-      outline: 4px auto -webkit-focus-ring-color;
-    }
-
-    @media (prefers-color-scheme: light) {
-      a:hover {
-        color: #747bff;
-      }
-      button {
-        background-color: #f9f9f9;
-      }
+      border: 1px solid black;
     }
   `
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'my-element': GraphitElement
+    'graphit-element': GraphitElement
   }
 }

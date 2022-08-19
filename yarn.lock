@@ -12,10 +12,27 @@
   resolved "https://registry.yarnpkg.com/@lit/reactive-element/-/reactive-element-1.4.0.tgz#78ed05eb9b750e8e3671a61a30c19198e4038f80"
   integrity sha512-blrtlLKvtVyjTJ3gUHWNSHOU6tD8be9mRafqtnO7GVMcB+5z4RjNcO0DpMGmccK6N8yur1vVVYnS0gPdQ/WgEQ==
 
+"@types/cytoscape-dagre@^2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@types/cytoscape-dagre/-/cytoscape-dagre-2.3.0.tgz#e9193f710f47472bed9c80430ca0d6cb98cf1620"
+  integrity sha512-1WwDnCcdySVwhxhHWHxRFlWoz7InlXlA9O9gQjtBkk1Sf7hW0+uaRxS6nr1TLBSPZRX0QNpYGvGqh13NuFEDaA==
+  dependencies:
+    "@types/cytoscape" "*"
+
+"@types/cytoscape@*", "@types/cytoscape@^3.19.7":
+  version "3.19.7"
+  resolved "https://registry.yarnpkg.com/@types/cytoscape/-/cytoscape-3.19.7.tgz#a15f2905f6a0803f6efda60a00024a5974aeedba"
+  integrity sha512-JPM9gkXd302QvChbT7vnMli0QYbithROlQQQ9u0ur9YhmMkN0E/y++mKreHEhBvSf3ffiMH6RwemwPM5qbOGEw==
+
 "@types/trusted-types@^2.0.2":
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/@types/trusted-types/-/trusted-types-2.0.2.tgz#fc25ad9943bcac11cceb8168db4f275e0e72e756"
   integrity sha512-F5DIZ36YVLE+PN+Zwws4kJogq47hNgX3Nx6WyDJ3kcplxyke3XIzB8uK5n/Lpm1HBsbGzd6nmGehL8cPekP+Tg==
+
+"@types/uuid@^8.3.4":
+  version "8.3.4"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.3.4.tgz#bd86a43617df0594787d38b735f55c805becf1bc"
+  integrity sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw==
 
 cytoscape-cola@^2.5.1:
   version "2.5.1"
